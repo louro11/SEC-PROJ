@@ -1,4 +1,4 @@
-package org.hds-coin.T26;
+package org.hdscoin.T26;
 
 /**
  * Hello world!
