@@ -3,6 +3,8 @@ package hds;
 import org.junit.*;
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
@@ -30,8 +32,8 @@ public class RegisterTest {
 
     // initialization and clean-up for each test
     @Before
-    public void setUp() {
-    	server = new HDSServerImpl(); 
+    public void setUp() throws InvalidInputException, FailToLogRequestException{
+    	server = new HDSServerImpl("tests"); 
     }
 
     @After
@@ -42,56 +44,56 @@ public class RegisterTest {
 
     // tests
     @Test
-    public void  ok() throws InvalidInputException {
+    public void  ok() throws InvalidInputException, FailToLogRequestException {
     	server.register(keyS1, "sec1");
     	server.register(keyS2, "sec2");
     }
     
     @Test(expected = InvalidInputException.class) 
-    public void  usernameExists() throws InvalidInputException {
+    public void  usernameExists() throws InvalidInputException, FailToLogRequestException {
     	server.register(keyS1, "sec");
     	server.register(keyS2, "sec");
     }
     
     @Test(expected = InvalidInputException.class) 
-    public void  keyExists() throws InvalidInputException {
+    public void  keyExists() throws InvalidInputException, FailToLogRequestException {
     	server.register(keyS1, "sec");
     	server.register(keyS1, "sec2");
     }
     
     @Test(expected = InvalidInputException.class) 
-    public void  keyAndUsernameExist() throws InvalidInputException {
+    public void  keyAndUsernameExist() throws InvalidInputException, FailToLogRequestException {
     	server.register(keyS1, "sec");
     	server.register(keyS1, "sec");
     }
     
     @Test(expected = InvalidInputException.class) 
-    public void  nullKey() throws InvalidInputException {
+    public void  nullKey() throws InvalidInputException, FailToLogRequestException {
     	server.register(null, "sec");
     }
 
     @Test(expected = InvalidInputException.class) 
-    public void  nullUsername() throws InvalidInputException {
+    public void  nullUsername() throws InvalidInputException, FailToLogRequestException {
     	server.register(keyS1, null);
     }
     
     @Test(expected = InvalidInputException.class) 
-    public void  nullKeyAndUsername() throws InvalidInputException {
+    public void  nullKeyAndUsername() throws InvalidInputException, FailToLogRequestException {
     	server.register(null, null);
     }
 
     @Test(expected = InvalidInputException.class) 
-    public void  nonAlphaNumericUsername() throws InvalidInputException {
+    public void  nonAlphaNumericUsername() throws InvalidInputException, FailToLogRequestException {
     	server.register(keyS1, "12/dd$%");
     }
     
     @Test(expected = InvalidInputException.class) 
-    public void  nonAlphaNumericUsername2() throws InvalidInputException {
+    public void  nonAlphaNumericUsername2() throws InvalidInputException, FailToLogRequestException {
     	server.register(keyS1, "-1");
     }
     
     @Test(expected = InvalidInputException.class) 
-    public void  falseKey() throws InvalidInputException {
+    public void  falseKey() throws InvalidInputException, FailToLogRequestException {
     	server.register("ThisKeyIsFake", "sec1");
     }
     

@@ -53,9 +53,9 @@ public class Account {
 		Account sender = transfer.getSender();
 		Account destinatary = transfer.getDestinatary();
 		float value = transfer.getValue();
-		int OutSize = transfersOut.size()-1;
+		int outSize = transfersOut.size()-1;
 		boolean found = false;
-		for(int i = 0; i <= OutSize; i++){
+		for(int i = 0; i <= outSize; i++){
 		    Transfer t = transfersOut.get(i);
 		    if(t.getDestinatary() == destinatary && t.getSender() == sender && t.getValue() == value){
 		    	transfersOut.remove(i);
@@ -63,17 +63,15 @@ public class Account {
 		        break;
 		    }
 		}
-		if(!found)
-			throw new InvalidInputException("ERRO (o receiver aceitou uma transferencia que nao esta registada no sender)"); //Lança excepção que o cliente apanha e imprime mensagem
 	}
 	
 	public void acceptTransfer(Transfer transfer) throws InvalidInputException{
 		Account sender = transfer.getSender();
 		Account destinatary = transfer.getDestinatary();
 		float value = transfer.getValue();
-		int OutSize = transfersIn.size()-1;
+		int inSize = transfersIn.size()-1;
 		boolean found = false;
-		for(int i = 0; i <= OutSize; i++){
+		for(int i = 0; i <= inSize; i++){
 		    Transfer t = transfersIn.get(i);
 		    if(t.getDestinatary() == destinatary && t.getSender() == sender && t.getValue() == value){
 		    	transfersIn.remove(i);
@@ -84,8 +82,6 @@ public class Account {
 		        break;
 		    }
 		}
-		if(!found)
-			throw new InvalidInputException("ERRO (o receiver aceitou uma transferencia que nao esta registada no receiver)"); //Lança excepção que o cliente apanha e imprime mensagem
 	}
 	
 

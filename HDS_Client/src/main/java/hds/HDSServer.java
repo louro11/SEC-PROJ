@@ -29,18 +29,20 @@ public interface HDSServer {
      * 
      * @param arg1
      * @param arg0
+     * @throws FailToLogRequestException_Exception
      * @throws InvalidInputException_Exception
      */
     @WebMethod
     @Action(input = "http://hds/HDSServer/registerRequest", output = "http://hds/HDSServer/registerResponse", fault = {
-        @FaultAction(className = InvalidInputException_Exception.class, value = "http://hds/HDSServer/register/Fault/InvalidInputException")
+        @FaultAction(className = InvalidInputException_Exception.class, value = "http://hds/HDSServer/register/Fault/InvalidInputException"),
+        @FaultAction(className = FailToLogRequestException_Exception.class, value = "http://hds/HDSServer/register/Fault/FailToLogRequestException")
     })
     public void register(
         @WebParam(name = "arg0", partName = "arg0")
         String arg0,
         @WebParam(name = "arg1", partName = "arg1")
         String arg1)
-        throws InvalidInputException_Exception
+        throws FailToLogRequestException_Exception, InvalidInputException_Exception
     ;
 
     /**
@@ -48,11 +50,13 @@ public interface HDSServer {
      * @param arg2
      * @param arg1
      * @param arg0
+     * @throws FailToLogRequestException_Exception
      * @throws InvalidInputException_Exception
      */
     @WebMethod(operationName = "send_amount")
     @Action(input = "http://hds/HDSServer/send_amountRequest", output = "http://hds/HDSServer/send_amountResponse", fault = {
-        @FaultAction(className = InvalidInputException_Exception.class, value = "http://hds/HDSServer/send_amount/Fault/InvalidInputException")
+        @FaultAction(className = InvalidInputException_Exception.class, value = "http://hds/HDSServer/send_amount/Fault/InvalidInputException"),
+        @FaultAction(className = FailToLogRequestException_Exception.class, value = "http://hds/HDSServer/send_amount/Fault/FailToLogRequestException")
     })
     public void sendAmount(
         @WebParam(name = "arg0", partName = "arg0")
@@ -61,25 +65,27 @@ public interface HDSServer {
         String arg1,
         @WebParam(name = "arg2", partName = "arg2")
         float arg2)
-        throws InvalidInputException_Exception
+        throws FailToLogRequestException_Exception, InvalidInputException_Exception
     ;
 
     /**
      * 
      * @param arg1
      * @param arg0
+     * @throws FailToLogRequestException_Exception
      * @throws InvalidInputException_Exception
      */
     @WebMethod(operationName = "receive_amount")
     @Action(input = "http://hds/HDSServer/receive_amountRequest", output = "http://hds/HDSServer/receive_amountResponse", fault = {
-        @FaultAction(className = InvalidInputException_Exception.class, value = "http://hds/HDSServer/receive_amount/Fault/InvalidInputException")
+        @FaultAction(className = InvalidInputException_Exception.class, value = "http://hds/HDSServer/receive_amount/Fault/InvalidInputException"),
+        @FaultAction(className = FailToLogRequestException_Exception.class, value = "http://hds/HDSServer/receive_amount/Fault/FailToLogRequestException")
     })
     public void receiveAmount(
         @WebParam(name = "arg0", partName = "arg0")
         String arg0,
         @WebParam(name = "arg1", partName = "arg1")
         int arg1)
-        throws InvalidInputException_Exception
+        throws FailToLogRequestException_Exception, InvalidInputException_Exception
     ;
 
     /**

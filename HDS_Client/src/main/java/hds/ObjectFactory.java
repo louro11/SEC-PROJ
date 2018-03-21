@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 public class ObjectFactory {
 
     private final static QName _InvalidInputException_QNAME = new QName("http://hds/", "InvalidInputException");
+    private final static QName _FailToLogRequestException_QNAME = new QName("http://hds/", "FailToLogRequestException");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: hds
@@ -39,6 +40,14 @@ public class ObjectFactory {
      */
     public InvalidInputException createInvalidInputException() {
         return new InvalidInputException();
+    }
+
+    /**
+     * Create an instance of {@link FailToLogRequestException }
+     * 
+     */
+    public FailToLogRequestException createFailToLogRequestException() {
+        return new FailToLogRequestException();
     }
 
     /**
@@ -80,6 +89,15 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://hds/", name = "InvalidInputException")
     public JAXBElement<InvalidInputException> createInvalidInputException(InvalidInputException value) {
         return new JAXBElement<InvalidInputException>(_InvalidInputException_QNAME, InvalidInputException.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link FailToLogRequestException }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://hds/", name = "FailToLogRequestException")
+    public JAXBElement<FailToLogRequestException> createFailToLogRequestException(FailToLogRequestException value) {
+        return new JAXBElement<FailToLogRequestException>(_FailToLogRequestException_QNAME, FailToLogRequestException.class, null, value);
     }
 
 }

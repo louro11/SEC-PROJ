@@ -8,28 +8,59 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
+import hds.SoapHandler;
+import javax.jws.HandlerChain;
+import javax.jws.WebService;
+import javax.xml.ws.Binding;
+import javax.xml.ws.WebServiceClient;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+
+import javax.xml.ws.BindingProvider;
+
+
 public class HDSClientApplication {
-	
 	public static void main (String[] args){
 		
 		String pathToKeystore = "../../../../keys/";
-	
+		String pathToPrivKeystore = "../../../PrivKeys/";
+		
 		HDSServerImplService hdsService = new HDSServerImplService();
 		HDSServer hds = hdsService.getPort(HDSServer.class);
 		
+		boolean registered = false;
+		String myUsername = null;
+		
 		try{
 			//Só INTERESSA PARA PODER FA>ER A ESTRUTURA DO MENU, QUNDO AS COISA ESTIVEREM REMOTAS NAO VAI SER PRECISO ESTAS CENAS
+			
+			Binding binding = ((BindingProvider)hds).getBinding();
+		    List<Handler> handlerList = binding.getHandlerChain();
+		    handlerList.add(new SoapHandler());
+		    binding.setHandlerChain(handlerList);
+			
+			
+			
 			KeyPairGenerator keyGen1 = KeyPairGenerator.getInstance("RSA");
 	        keyGen1.initialize(1024);
 	        KeyPair keypair1 = keyGen1.genKeyPair();
 	        PublicKey pubKey = keypair1.getPublic();
+	        PrivateKey privKey = keypair1.getPrivate();
 	        byte[] keyP = pubKey.getEncoded();
+	        byte[] keyPriv = privKey.getEncoded();
+	        
 	        String key = Base64.getEncoder().encodeToString(keyP);
+	        
 			Scanner scanner = new Scanner(System.in);
 			boolean quit = false;
 			while(!quit){
@@ -46,13 +77,12 @@ public class HDSClientApplication {
 		    	}
 		
 			    switch (choice) {
-			        case 1:
+			        case 1:			        
 			        	System.out.println("SELECT A USERNAME: *type 'BACK' to navigate to the previous menu.");
 			        	boolean usernameGiven = false;
-			        	String username = null;
 					    while(!usernameGiven){
-					    	username = scanner.next();
-					    	if(username.equals("BACK") || username.equals("back"))
+					    	myUsername = scanner.next();
+					    	if(myUsername.equals("BACK") || myUsername.equals("back"))
 						    	break;
 					    	else
 					    		usernameGiven = true;
@@ -60,10 +90,23 @@ public class HDSClientApplication {
 			        	if(!usernameGiven)
 			        		break;
 			        	try{
-			        		hds.register(key, username);
-			        		putKeyInKeyStore(keyP, username, pathToKeystore);
+			        		BindingProvider bindingProvider = (BindingProvider) hds;
+			        		Map<String, Object> requestContext = bindingProvider.getRequestContext();
+			        		requestContext.put(SoapHandler.ENTITY_PROPERTY, myUsername);
+			        		requestContext.put(SoapHandler.NONCE_CONTENT, Nonce.getInstance().generateNonce());
+			        		putKeyInKeyStore(keyPriv, myUsername, pathToPrivKeystore, "_PrivateKey");
+			        		putKeyInKeyStore(keyP, myUsername, pathToKeystore, "_PublicKey");
+			        		hds.register(key, myUsername);
+			        		registered = true;
 			        		break;
 			        	}catch(InvalidInputException_Exception e){
+			    	    	System.out.println("#############################");
+			    	    	System.out.println("");
+			    	    	System.out.println(e.getMessage());
+			    	    	System.out.println("");
+			    	    	System.out.println("#############################");
+			    	    	break;	
+		    	    	}catch(FailToLogRequestException_Exception e){
 			    	    	System.out.println("#############################");
 			    	    	System.out.println("");
 			    	    	System.out.println(e.getMessage());
@@ -73,6 +116,11 @@ public class HDSClientApplication {
 		    	    	}
 			            
 			        case 2:
+			        	if(!registered || myUsername == null){
+			        		System.out.println("YOU NEED TO REGISTER YOUR ACCOUNT FIRST!");
+			        		break;
+			        	}
+			        		
 			    		System.out.println("SELECT DESTINATARY: *type 'BACK' to navigate to the previous menu.");
 			    		String username2 = scanner.next();
 			    		if(username2.equals("BACK") || username2.equals("back"))
@@ -94,6 +142,10 @@ public class HDSClientApplication {
 			    	    	}
 			    	    }
 			    	    try{
+			    	    	BindingProvider bindingProvider2 = (BindingProvider) hds;
+			        		Map<String, Object> requestContext2 = bindingProvider2.getRequestContext();
+			        		requestContext2.put(SoapHandler.ENTITY_PROPERTY, myUsername);
+			        		requestContext2.put(SoapHandler.NONCE_CONTENT, Nonce.getInstance().generateNonce());
 			    	    	hds.sendAmount(key, getKeyFromUsername(username2, pathToKeystore), amount);
 			    	    	break;
 			    	    }catch(InvalidInputException_Exception e){
@@ -103,15 +155,34 @@ public class HDSClientApplication {
 			    	    	System.out.println("");
 			    	    	System.out.println("#############################");
 			    	    	break;	
-			    	    }
+			    	    }catch(FailToLogRequestException_Exception e){
+			    	    	System.out.println("#############################");
+			    	    	System.out.println("");
+			    	    	System.out.println(e.getMessage());
+			    	    	System.out.println("");
+			    	    	System.out.println("#############################");
+			    	    	break;	
+		    	    	}
 			            
 			        case 3:
+			        	if(!registered || myUsername == null){
+			        		System.out.println("YOU NEED TO REGISTER YOUR ACCOUNT FIRST!");
+			        		break;
+			        	}
+			        	BindingProvider bindingProvider3 = (BindingProvider) hds;
+		        		Map<String, Object> requestContext3 = bindingProvider3.getRequestContext();
+		        		requestContext3.put(SoapHandler.ENTITY_PROPERTY, myUsername);
+		        		requestContext3.put(SoapHandler.NONCE_CONTENT, Nonce.getInstance().generateNonce());
 			        	CheckResult response = hds.checkAccount(key);
 			        	printCheckResult(response);
 			        	pressAnyKeyToContinue();
 			            break;
 			            
 			        case 4:
+			        	if(!registered || myUsername == null){
+			        		System.out.println("YOU NEED TO REGISTER YOUR ACCOUNT FIRST!");
+			        		break;
+			        	}
 			        	System.out.println("SELECT TRANSFER ID: *type 'BACK' to navigate to the previous menu.");
 			        	boolean idGiven = false;
 			        	int id = -1;
@@ -129,7 +200,11 @@ public class HDSClientApplication {
 					    	}
 					    }
 					    try{
-						    if(id!=-1){	
+						    if(id!=-1){
+						    	BindingProvider bindingProvider4 = (BindingProvider) hds;
+				        		Map<String, Object> requestContext4 = bindingProvider4.getRequestContext();
+				        		requestContext4.put(SoapHandler.ENTITY_PROPERTY, myUsername);
+				        		requestContext4.put(SoapHandler.NONCE_CONTENT, Nonce.getInstance().generateNonce());
 						    	hds.receiveAmount(key, id);
 						    	pressAnyKeyToContinue();
 				        	}
@@ -141,13 +216,28 @@ public class HDSClientApplication {
 			    	    	System.out.println("");
 			    	    	System.out.println("#############################");
 			    	    	break;	
-			    	    }
+			    	    }catch(FailToLogRequestException_Exception e){
+			    	    	System.out.println("#############################");
+			    	    	System.out.println("");
+			    	    	System.out.println(e.getMessage());
+			    	    	System.out.println("");
+			    	    	System.out.println("#############################");
+			    	    	break;	
+		    	    	}
 			            
 			        case 5:
+			        	if(!registered || myUsername == null){
+			        		System.out.println("YOU NEED TO REGISTER YOUR ACCOUNT FIRST!");
+			        		break;
+			        	}
 			        	System.out.println("SELECT ACCOUNT TO AUDIT: *type 'BACK' to navigate to the previous menu.");
 			    		String username5 = scanner.next();
 			    		if(username5.equals("BACK") || username5.equals("back"))
 			    			break;
+			    		BindingProvider bindingProvider4 = (BindingProvider) hds;
+		        		Map<String, Object> requestContext4 = bindingProvider4.getRequestContext();
+		        		requestContext4.put(SoapHandler.ENTITY_PROPERTY, myUsername);
+		        		requestContext4.put(SoapHandler.NONCE_CONTENT, Nonce.getInstance().generateNonce());
 			        	AuditResult auditResponse = hds.audit(getKeyFromUsername(username5, pathToKeystore));
 			        	ArrayList<Transfer> history = (ArrayList<Transfer>) auditResponse.getTransfersHistory();
 			        	if(history.isEmpty()){
@@ -180,10 +270,10 @@ public class HDSClientApplication {
 		}
 	}
 	
-	private static void putKeyInKeyStore(byte[] publicBytes, String username, String pathToKeystore) {
+	private static void putKeyInKeyStore(byte[] publicBytes, String username, String pathToKeystore, String type) {
 		
 		try {
-			SavePemPublicKey(Base64.getEncoder().encodeToString(publicBytes), pathToKeystore + username + "_PublicKey");
+			SavePemPublicKey(Base64.getEncoder().encodeToString(publicBytes), pathToKeystore + username + type);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -237,8 +327,9 @@ public class HDSClientApplication {
 	        {
 	            System.in.read();
 	        }  
-	        catch(Exception e)
-	        {}  
+	        catch(Exception e){
+	        	e.printStackTrace();
+	        }  
 	 }
 	
 	private static String getKeyFromUsername(String username, String pathToKeystore) {
