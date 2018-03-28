@@ -100,7 +100,8 @@ public class SoapHandler implements SOAPHandler<SOAPMessageContext> {
 				smc.getMessage().saveChanges();
 				
 				// Get my Private Key from KeyStore
-				PrivateKey privateKey = getPrivateKeyUsername((String) smc.get(ENTITY_PROPERTY), "../../../PrivKeys/");
+				System.out.println(System.getProperty("user.dir"));
+				PrivateKey privateKey = getPrivateKeyUsername((String) smc.get(ENTITY_PROPERTY), "PrivKeys/");
 
 				// Prepare content to be signed (Body + Username Header + Nonce Header)
 				String message = getSoapString(smc);
@@ -235,7 +236,7 @@ public class SoapHandler implements SOAPHandler<SOAPMessageContext> {
 			// Add header element value
 			String newValue = propertyValue;
 			element.addTextNode(newValue);
-
+			smc.getMessage().saveChanges();
 			// Print header
 			System.out.println("  • Added Header with my username: "+ newValue);
 			

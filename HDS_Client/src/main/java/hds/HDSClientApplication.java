@@ -33,7 +33,7 @@ public class HDSClientApplication {
 	public static void main (String[] args){
 		
 		String pathToKeystore = "../../../../keys/";
-		String pathToPrivKeystore = "../../../PrivKeys/";
+		String pathToPrivKeystore = "PrivKeys/";
 		
 		HDSServerImplService hdsService = new HDSServerImplService();
 		HDSServer hds = hdsService.getPort(HDSServer.class);

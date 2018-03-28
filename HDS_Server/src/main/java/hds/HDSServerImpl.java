@@ -176,7 +176,7 @@ public class HDSServerImpl implements HDSServer{
 		return kf.generatePublic(new X509EncodedKeySpec(publicKeyBytes));
 	}
 	
-	private PublicKey StringToPubliKey(String keyS) {
+	public PublicKey StringToPubliKey(String keyS) {
 		try{
 			byte[] publicBytes = convertStringToByteArray(keyS);
 			return convertByteArrayToPubKey(publicBytes, "RSA");
@@ -291,6 +291,10 @@ public class HDSServerImpl implements HDSServer{
 		MessageContext messageContext = webServiceContext.getMessageContext();
 		messageContext.put(SoapHandler.ENTITY_PROPERTY, serverName);
 		messageContext.put(SoapHandler.NONCE_CONTENT, Nonce.getInstance().generateNonce());
+	}
+
+	public Account getAccount(PublicKey key1) {
+		return accounts.get(key1);
 	}
 
 }
